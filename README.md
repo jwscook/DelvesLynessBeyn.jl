@@ -33,7 +33,7 @@ end
 
 contourpoints, solutions, expectedzeros, expectedpoles = run()
 
-h = plot(aspect_ratio=:equal)
+h = plot()
 scatter!(h, real.(contourpoints), imag.(contourpoints), mc=:black, label="Contour")
 scatter!(h, real.(expectedzeros), imag.(expectedzeros), m=:+, markersize=5, mc=:blue, label="Expected Zeros")
 scatter!(h, real.(expectedpoles), imag.(expectedpoles), m=:+, markersize=5, mc=:red, label="Expected Poles")
@@ -42,5 +42,5 @@ scatter!(h, real.(solutions.poles), imag.(solutions.poles), markersize=3, mc=:re
 plot!(xlabel="Real axis", ylabel="Imaginary axis", legend=:outerright, legendcolumns=1)
 savefig("DelvesLynessBeyn.png")
 ```
+<img width="600" height="400" alt="DelvesLynessBeyn" src="https://github.com/user-attachments/assets/655b3f38-786a-4b46-b455-192f6aaa8530" />
 
-<img width="600" height="400" alt="DelvesLynessBeyn" src="https://github.com/user-attachments/assets/926cc3ad-ea17-406b-942f-dc1366b39cf5" />
