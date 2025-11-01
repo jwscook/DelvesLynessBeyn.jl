@@ -1,3 +1,5 @@
+![CI](https://github.com/jwscook/DelvesLynessBeyn.jl/workflows/CI/badge.svg)
+
 # DelvesLynessBeyn.jl
 
 Find the zeros and poles (if you know how many there are) of a function within a contour by evaluating only around the contour!
