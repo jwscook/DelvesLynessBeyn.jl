@@ -38,7 +38,7 @@ end
   for npoles in 0:1, nzeros in 1:6
     @testset "nzeros = $nzeros, npoles = $npoles" begin
       expectedzeros, expectedpoles, realradius, imagradius, f = setup(nzeros, npoles)
-      res = delveslynessbeyn(f; rtol=sqrt(eps()), N=8, centre=0+0im, realradius=realradius, imagradius=imagradius, npoles=npoles, maxiters=14)
+      res = delveslynessbeyn(f; rtol=sqrt(eps()), N=8, centre=0+0im, realradius=realradius, imagradius=imagradius, npoles=npoles, maxrefinements=14)
       @test all(compare(expectedzeros, res.zeros; rtol=1e-6))
       npoles > 0 && @test all(compare(expectedpoles, res.poles; rtol=1e-6))
     end

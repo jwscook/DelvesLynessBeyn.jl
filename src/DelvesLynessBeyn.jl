@@ -3,14 +3,39 @@ module DelvesLynessBeyn
 using FFTW, LinearAlgebra
 
 export delveslynessbeyn
-function delveslynessbeyn(f::F; N=8, centre, realradius, imagradius, npoles::Int=0, svdtol=1e-12, maxiters=10, rtol=Inf, atol=0.0,
-    errornoconvergence=true) where F
+const DEFAULT_SVDTOL = 100eps()
+"""
+    delveslynessbeyn(f::F; N=8, centre, realradius, imagradius, npoles::Int=0, svdtol=1e-12, maxrefinements=10, rtol=Inf, atol=0.0, errornoconvergence=true) where F
+
+Find all the zeros of a function `f`(z) using Delves-Lyness-Beyn method by evaluating the objective function at `N` 
+equally spaced positions on a contour with specified real and imaginary radius and centre;
+`centre`, `realradius` and `imagradius`. If there are poles, specify the number as `npoles` to aid the algorithm.
+
+If `rtol` is set less than Inf, then the roots will be found via refinement where at each iteration `N` doubles and the
+algorithm will stop when the relative (absolute) error is less than rtol (atol). It will error if it does not reach
+convergence inside `maxrefinements` iterations unless `errornoconvergence` is set to false.
+
+Arguments:
+- `f`: Function to find roots of (f(z) = 0)
+- `centre`: Center of contour
+- `realradius`: Real radius of contour
+- `imagradius`: Imaginary radius of contour
+- `N (default=8)`: Initial number of points to sample along contour, which doubles with each refinement
+- `npoles (default=0)`: Number of known poles in the contour
+- `svdtol (default=100eps())`: SVD truncation tolerance, which acts as a regularization parameter.
+- `maxrefinements (default=10)`: Maximum number of refinement iterations
+- `rtol (default=Inf)`: Relative tolerance (default is Inf, meaning that no refinement takes place)
+- `atol (default=0)`: Absolute tolerance
+- `errornoconvergence`: Throw error if no convergence
+"""
+function delveslynessbeyn(f::F; centre, realradius, imagradius, N=8, npoles::Integer=0, svdtol=DEFAULT_SVDTOL,
+    maxrefinements=10, rtol=Inf, atol=0.0, errornoconvergence=true) where F
   t0 = float(centre + realradius + 0im)
   cache = Dict(t0=>f(t0)) 
   lastsols = delveslynessbeyn!(f, cache; N, centre, realradius, imagradius, npoles, svdtol)
   rtol == Inf && return lastsols
   iter = 0
-  while iter < maxiters
+  while iter < maxrefinements
     iter += 1
     nextsols = delveslynessbeyn!(f, cache; N=N*2^iter, centre=centre, realradius=realradius, imagradius=imagradius, npoles=npoles, svdtol=svdtol)
     if length(nextsols.allroots) == length(lastsols.allroots)
@@ -24,7 +49,8 @@ function delveslynessbeyn(f::F; N=8, centre, realradius, imagradius, npoles::Int
   return lastsols
 end
 
-function delveslynessbeyn!(f::F, cache::Dict{K, V}; N, centre=0+0im, realradius=1.5, imagradius=1.0, npoles::Int=0, svdtol=1e-12) where {F, K, V}
+function delveslynessbeyn!(f::F, cache::Dict{K, V}; N, centre, realradius, imagradius, npoles::Integer,
+    svdtol=DEFAULT_SVDTOL) where {F, K, V}
 
   N < 8 && throw(ArgumentError("N too small; 8 is tiny, 64 is sensible"))
 
